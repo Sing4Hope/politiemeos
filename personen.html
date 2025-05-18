@@ -3,38 +3,164 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Personenlijst</title>
+  <title>Politie Dossier - Personen</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
+
     body {
-      font-family: Arial, sans-serif;
+      background-color: #0b0f23;
+      color: #eaeaea;
+      font-family: 'Roboto Mono', monospace, monospace;
       margin: 20px;
+      padding: 0;
     }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 30px;
+      border-bottom: 2px solid #c91c1c;
+      padding-bottom: 10px;
+    }
+
+    header img {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      color: #c91c1c;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin: 0;
+    }
+
+    #personList {
+      display: grid;
+      grid-template-columns: repeat(auto-fit,minmax(350px,1fr));
+      gap: 25px;
+    }
+
     .person {
-      border: 1px solid #333;
-      border-radius: 5px;
-      padding: 10px;
+      background-color: #1c2238;
+      border: 3px solid #c91c1c;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 0 12px #c91c1caa;
+      position: relative;
+    }
+
+    .person::before {
+      content: "DOSSIER";
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #c91c1c;
+      letter-spacing: 2px;
+      opacity: 0.3;
+    }
+
+    .person-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
       margin-bottom: 15px;
-      max-width: 500px;
     }
-    .person h2 {
-      margin: 0 0 5px 0;
-      color: #222;
+
+    .avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: #2c334d;
+      border: 2px solid #c91c1c;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 3rem;
+      color: #c91c1c;
+      user-select: none;
     }
+
+    .person-name {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    .person-details {
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+    }
+
+    .detail-label {
+      font-weight: 700;
+      color: #c91c1c;
+    }
+
     .autos {
-      margin-left: 20px;
+      background: #222a4a;
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 10px;
+      font-size: 0.9rem;
     }
+
+    .autos ul {
+      padding-left: 20px;
+      margin: 0;
+    }
+
     .autos li {
-      list-style-type: disc;
+      margin-bottom: 6px;
+    }
+
+    .status {
+      font-weight: 700;
+      color: #e8b500;
+      margin-top: 10px;
+      font-style: italic;
+    }
+
+    .btn-details {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 8px 14px;
+      background-color: #c91c1c;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: background-color 0.25s ease;
+      user-select: none;
+    }
+
+    .btn-details:hover {
+      background-color: #8f1212;
     }
   </style>
 </head>
 <body>
 
-  <h1>Personenlijst</h1>
+  <header>
+    <img src="pol.png" alt="Politie Logo" />
+    <h1>Politie Dossier</h1>
+  </header>
+
   <div id="personList"></div>
 
   <script>
-    // Haal personen op uit localStorage of maak een testpersoon aan als leeg
+    const dossierNumbers = ['PD-2025-001', 'PD-2025-002', 'PD-2025-003'];
+
     let persons = JSON.parse(localStorage.getItem('personen')) || [];
 
     if (persons.length === 0) {
@@ -42,43 +168,80 @@
         {
           name: "Jan Jansen",
           age: 30,
+          geboortedatum: "1995-02-15",
+          dossiernummer: dossierNumbers[0],
+          status: "In onderzoek",
           autos: [
             { merk: "Volkswagen", model: "Golf", kenteken: "AB-123-CD" },
             { merk: "Tesla", model: "Model 3", kenteken: "EF-456-GH" }
           ],
-          adres: "Kerkstraat 10",
+          adres: "Kerkstraat 10, Amsterdam",
           telefoon: "06-12345678"
+        },
+        {
+          name: "Sara de Vries",
+          age: 27,
+          geboortedatum: "1997-08-22",
+          dossiernummer: dossierNumbers[1],
+          status: "Gevraagd voor verhoor",
+          autos: [
+            { merk: "Audi", model: "A4", kenteken: "XY-987-ZT" }
+          ],
+          adres: "Stationsplein 4, Haarlem",
+          telefoon: "06-87654321"
         }
       ];
       localStorage.setItem('personen', JSON.stringify(persons));
     }
 
-    // Functie om personen te tonen
-    function showPersons(list) {
-      console.log("Personen die getoond worden:", list);
-      const container = document.getElementById('personList');
-      container.innerHTML = ''; // Leeg maken
+    function formatDate(dateStr) {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('nl-NL', { year: 'numeric', month: 'long', day: 'numeric' });
+    }
 
-      list.forEach(persoon => {
+    function getInitials(name) {
+      return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    }
+
+    function showPersons(list) {
+      const container = document.getElementById('personList');
+      container.innerHTML = '';
+
+      list.forEach((persoon, i) => {
         const div = document.createElement('div');
         div.classList.add('person');
 
         div.innerHTML = `
-          <h2>${persoon.name} (${persoon.age} jaar)</h2>
-          <p><strong>Adres:</strong> ${persoon.adres}</p>
-          <p><strong>Telefoon:</strong> ${persoon.telefoon}</p>
-          <p><strong>Autos:</strong></p>
-          <ul class="autos">
-            ${persoon.autos.map(auto => `<li>${auto.merk} ${auto.model} (Kenteken: ${auto.kenteken})</li>`).join('')}
-          </ul>
+          <div class="person-header">
+            <div class="avatar">${getInitials(persoon.name)}</div>
+            <div>
+              <div class="person-name">${persoon.name}</div>
+              <div class="person-details"><span class="detail-label">Dossiernr:</span> ${persoon.dossiernummer || 'Onbekend'}</div>
+              <div class="person-details"><span class="detail-label">Geboortedatum:</span> ${persoon.geboortedatum ? formatDate(persoon.geboortedatum) : '-'}</div>
+              <div class="person-details"><span class="detail-label">Leeftijd:</span> ${persoon.age} jaar</div>
+              <div class="person-details"><span class="detail-label">Adres:</span> ${persoon.adres}</div>
+              <div class="person-details"><span class="detail-label">Telefoon:</span> ${persoon.telefoon}</div>
+              <div class="status">${persoon.status || ''}</div>
+            </div>
+          </div>
+          <div class="autos">
+            <strong>Voertuigen:</strong>
+            <ul>
+              ${persoon.autos && persoon.autos.length > 0
+                ? persoon.autos.map(auto => `<li>${auto.merk} ${auto.model} - Kenteken: ${auto.kenteken}</li>`).join('')
+                : '<li>Geen voertuigen bekend</li>'
+              }
+            </ul>
+          </div>
+          <button class="btn-details" onclick="alert('Meer details voor ${persoon.name} komen hier.')">Meer details</button>
         `;
 
         container.appendChild(div);
       });
     }
 
-    // Personen tonen op de pagina
     showPersons(persons);
   </script>
+
 </body>
 </html>
