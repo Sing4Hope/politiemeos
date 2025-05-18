@@ -152,8 +152,16 @@
       overflow: hidden;
     }
     .person.expanded .person-details {
-      max-height: 200px;
+      max-height: 500px;
       padding: 15px 24px 24px;
+    }
+    .person-details ul {
+      margin: 10px 0 20px 20px;
+      padding: 0;
+      list-style-type: disc;
+    }
+    .person-details strong {
+      color: #002060;
     }
     @keyframes shake {
       0% { transform: translateX(0);}
@@ -193,7 +201,34 @@
   <div id="personList"></div>
 
   <script>
+    // Voorbeeld auto’s die we kunnen toevoegen aan personen:
+    const voorbeeldAutos = [
+      { merk: "Volkswagen", model: "Golf", kenteken: "AB-123-CD" },
+      { merk: "Tesla", model: "Model 3", kenteken: "EF-456-GH" },
+      { merk: "Ford", model: "Focus", kenteken: "IJ-789-KL" },
+      { merk: "Toyota", model: "Corolla", kenteken: "MN-012-OP" },
+      { merk: "BMW", model: "X3", kenteken: "QR-345-ST" }
+    ];
+
     let persons = JSON.parse(localStorage.getItem('personen')) || [];
+
+    // Vul een persoon automatisch met voorbeeld data bij toevoegen
+    function createPersonObject(name, age) {
+      // Kies 1 of 2 willekeurige auto's uit voorbeeldAutos:
+      const aantalAutos = Math.floor(Math.random() * 2) + 1; // 1 of 2
+      const autos = [];
+      for(let i = 0; i < aantalAutos; i++) {
+        const auto = voorbeeldAutos[Math.floor(Math.random() * voorbeeldAutos.length)];
+        autos.push(auto);
+      }
+
+      // Willekeurig adres en telefoonnummer verzinnen:
+      const straatNamen = ["Kerkstraat", "Dorpsweg", "Stationslaan", "Molenstraat", "Boomgaard"];
+      const straat = straatNamen[Math.floor(Math.random() * straatNamen.length)] + ' ' + (Math.floor(Math.random() * 100) + 1);
+      const telefoon = "06-" + Math.floor(10000000 + Math.random() * 89999999);
+
+      return { name, age, autos, adres: straat, telefoon };
+    }
 
     function showPersons(list) {
       const personList = document.getElementById('personList');
@@ -206,9 +241,21 @@
         const div = document.createElement('div');
         div.className = 'person';
         div.style.animationDelay = (i * 70) + "ms";
+        let autosHTML = '<ul>';
+        p.autos.forEach(a => {
+          autosHTML += `<li>${a.merk} ${a.model} (${a.kenteken})</li>`;
+        });
+        autosHTML += '</ul>';
+
         div.innerHTML = `
           <div class="person-name">${p.name}</div>
-          <div class="person-details">Leeftijd: ${p.age} jaar</div>
+          <div class="person-details">
+            <p><strong>Leeftijd:</strong> ${p.age} jaar</p>
+            <p><strong>Adres:</strong> ${p.adres}</p>
+            <p><strong>Telefoon:</strong> ${p.telefoon}</p>
+            <p><strong>Auto(s):</strong></p>
+            ${autosHTML}
+          </div>
         `;
         // Klik op naam togglet details
         div.querySelector('.person-name').addEventListener('click', () => {
@@ -220,15 +267,6 @@
 
     showPersons(persons);
 
-    // Shake animatie bij foutieve invoer
-    function shakeForm() {
-      const form = document.getElementById('addForm');
-      form.style.animation = "shake 0.4s";
-      form.addEventListener("animationend", () => {
-        form.style.animation = "";
-      }, { once: true });
-    }
-
     function addPerson() {
       const nameInput = document.getElementById('newName');
       const ageInput = document.getElementById('newAge');
@@ -236,14 +274,13 @@
       const age = parseInt(ageInput.value);
 
       if(name && age >= 0) {
-        persons.push({ name, age });
+        const persoon = createPersonObject(name, age);
+        persons.push(persoon);
         localStorage.setItem('personen', JSON.stringify(persons));
         showPersons(persons);
         nameInput.value = '';
         ageInput.value = '';
         document.getElementById('searchInput').value = '';
-      } else {
-        shakeForm();
       }
     }
 
