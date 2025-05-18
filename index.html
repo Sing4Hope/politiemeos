@@ -185,6 +185,8 @@
       const user = document.getElementById("username").value.trim();
       const pass = document.getElementById("password").value;
       const message = document.getElementById("message");
+      localStorage.setItem("loggedInUser", user);
+
 
       const found = accounts.find(acc => acc.username === user && acc.password === pass);
 
