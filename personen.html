@@ -3,264 +3,82 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Personen beheren</title>
+  <title>Personenlijst</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 30px;
-      background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
-      color: #222;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      font-family: Arial, sans-serif;
+      margin: 20px;
     }
-
-    h1 {
-      color: #003087;
-      margin-bottom: 30px;
-      font-weight: 700;
-      font-size: 2.5rem;
-      text-shadow: 1px 1px 4px rgba(0,0,0,0.1);
-    }
-
-    form {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 30px;
-      max-width: 600px;
-      width: 100%;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    input[type="text"], input[type="number"] {
-      padding: 12px 15px;
-      border: 2px solid #0050b3;
-      border-radius: 8px;
-      font-size: 1.1rem;
-      flex-grow: 1;
-      min-width: 150px;
-      transition: border-color 0.3s;
-    }
-
-    input[type="text"]:focus, input[type="number"]:focus {
-      border-color: #002060;
-      outline: none;
-    }
-
-    button {
-      padding: 12px 28px;
-      background-color: #003087;
-      border: none;
-      color: white;
-      font-weight: 700;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1.1rem;
-      transition: background-color 0.3s;
-    }
-    button:hover {
-      background-color: #001e5a;
-    }
-
-    #searchInput {
-      padding: 12px 15px;
-      max-width: 600px;
-      width: 100%;
-      border-radius: 8px;
-      border: 2px solid #0050b3;
-      font-size: 1.1rem;
-      margin-bottom: 40px;
-      transition: border-color 0.3s;
-    }
-    #searchInput:focus {
-      border-color: #002060;
-      outline: none;
-    }
-
-    #personList {
-      max-width: 600px;
-      width: 100%;
-    }
-
     .person {
-      background: white;
-      margin-bottom: 18px;
-      border-radius: 12px;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
-      cursor: pointer;
-      overflow: hidden;
-      transition: box-shadow 0.3s;
+      border: 1px solid #333;
+      border-radius: 5px;
+      padding: 10px;
+      margin-bottom: 15px;
+      max-width: 500px;
     }
-    .person:hover {
-      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    .person h2 {
+      margin: 0 0 5px 0;
+      color: #222;
     }
-
-    .person-name {
-      padding: 18px 24px;
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: #003087;
-      user-select: none;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .autos {
+      margin-left: 20px;
     }
-    .person-name::after {
-      content: "▼";
-      font-size: 1rem;
-      color: #0050b3;
-      transition: transform 0.3s;
-    }
-    .person.expanded .person-name::after {
-      transform: rotate(180deg);
-    }
-
-    .person-details {
-      max-height: 0;
-      padding: 0 24px;
-      color: #444;
-      font-size: 1.15rem;
-      background: #f0f4fb;
-      border-top: 1px solid #d1d9e6;
-      transition: max-height 0.4s ease, padding 0.4s ease;
-      overflow: hidden;
-    }
-
-    .person.expanded .person-details {
-      max-height: 500px; /* ruimte voor alle info */
-      padding: 15px 24px 24px;
-    }
-
-    .person-details ul {
-      margin: 10px 0 20px 20px;
-      padding: 0;
+    .autos li {
       list-style-type: disc;
-    }
-
-    .person-details strong {
-      color: #002060;
-    }
-
-    @media (max-width: 700px) {
-      body {
-        padding: 20px 15px;
-      }
-      form, #searchInput, #personList {
-        max-width: 100%;
-      }
-      .person-name {
-        font-size: 1.2rem;
-      }
-      .person-details {
-        font-size: 1rem;
-      }
     }
   </style>
 </head>
 <body>
-  <h1>Personen beheren</h1>
 
-  <form id="addForm" onsubmit="event.preventDefault(); addPerson();">
-    <input type="text" id="newName" placeholder="Naam" required />
-    <input type="number" id="newAge" placeholder="Leeftijd" min="0" max="120" required />
-    <button type="submit">Toevoegen</button>
-  </form>
-
-  <input type="text" id="searchInput" placeholder="Zoek persoon..." oninput="filterPersons()" />
-
+  <h1>Personenlijst</h1>
   <div id="personList"></div>
 
   <script>
-    // Voorbeeld auto’s die we kunnen toevoegen aan personen:
-    const voorbeeldAutos = [
-      { merk: "Volkswagen", model: "Golf", kenteken: "AB-123-CD" },
-      { merk: "Tesla", model: "Model 3", kenteken: "EF-456-GH" },
-      { merk: "Ford", model: "Focus", kenteken: "IJ-789-KL" },
-      { merk: "Toyota", model: "Corolla", kenteken: "MN-012-OP" },
-      { merk: "BMW", model: "X3", kenteken: "QR-345-ST" }
-    ];
-
+    // Haal personen op uit localStorage of maak een testpersoon aan als leeg
     let persons = JSON.parse(localStorage.getItem('personen')) || [];
 
-    // Vul een persoon automatisch met voorbeeld data bij toevoegen
-    function createPersonObject(name, age) {
-      // Kies 1 of 2 willekeurige auto's uit voorbeeldAutos:
-      const aantalAutos = Math.floor(Math.random() * 2) + 1; // 1 of 2
-      const autos = [];
-      for(let i = 0; i < aantalAutos; i++) {
-        const auto = voorbeeldAutos[Math.floor(Math.random() * voorbeeldAutos.length)];
-        autos.push(auto);
-      }
-
-      // Willekeurig adres en telefoonnummer verzinnen:
-      const straatNamen = ["Kerkstraat", "Dorpsweg", "Stationslaan", "Molenstraat", "Boomgaard"];
-      const straat = straatNamen[Math.floor(Math.random() * straatNamen.length)] + ' ' + (Math.floor(Math.random() * 100) + 1);
-      const telefoon = "06-" + Math.floor(10000000 + Math.random() * 89999999);
-
-      return { name, age, autos, adres: straat, telefoon };
+    if (persons.length === 0) {
+      persons = [
+        {
+          name: "Jan Jansen",
+          age: 30,
+          autos: [
+            { merk: "Volkswagen", model: "Golf", kenteken: "AB-123-CD" },
+            { merk: "Tesla", model: "Model 3", kenteken: "EF-456-GH" }
+          ],
+          adres: "Kerkstraat 10",
+          telefoon: "06-12345678"
+        }
+      ];
+      localStorage.setItem('personen', JSON.stringify(persons));
     }
 
+    // Functie om personen te tonen
     function showPersons(list) {
-      const personList = document.getElementById('personList');
-      personList.innerHTML = '';
-      if(list.length === 0) {
-        personList.innerHTML = '<p>Geen personen gevonden.</p>';
-        return;
-      }
-      list.forEach((p, i) => {
+      console.log("Personen die getoond worden:", list);
+      const container = document.getElementById('personList');
+      container.innerHTML = ''; // Leeg maken
+
+      list.forEach(persoon => {
         const div = document.createElement('div');
-        div.className = 'person';
-        let autosHTML = '<ul>';
-        p.autos.forEach(a => {
-          autosHTML += `<li>${a.merk} ${a.model} (${a.kenteken})</li>`;
-        });
-        autosHTML += '</ul>';
+        div.classList.add('person');
 
         div.innerHTML = `
-          <div class="person-name">${p.name}</div>
-          <div class="person-details">
-            <p><strong>Leeftijd:</strong> ${p.age} jaar</p>
-            <p><strong>Adres:</strong> ${p.adres}</p>
-            <p><strong>Telefoon:</strong> ${p.telefoon}</p>
-            <p><strong>Auto(s):</strong></p>
-            ${autosHTML}
-          </div>
+          <h2>${persoon.name} (${persoon.age} jaar)</h2>
+          <p><strong>Adres:</strong> ${persoon.adres}</p>
+          <p><strong>Telefoon:</strong> ${persoon.telefoon}</p>
+          <p><strong>Autos:</strong></p>
+          <ul class="autos">
+            ${persoon.autos.map(auto => `<li>${auto.merk} ${auto.model} (Kenteken: ${auto.kenteken})</li>`).join('')}
+          </ul>
         `;
-        // Klik op naam togglet details
-        div.querySelector('.person-name').addEventListener('click', () => {
-          div.classList.toggle('expanded');
-        });
-        personList.appendChild(div);
+
+        container.appendChild(div);
       });
     }
 
+    // Personen tonen op de pagina
     showPersons(persons);
-
-    function addPerson() {
-      const nameInput = document.getElementById('newName');
-      const ageInput = document.getElementById('newAge');
-      const name = nameInput.value.trim();
-      const age = parseInt(ageInput.value);
-
-      if(name && age >= 0) {
-        const persoon = createPersonObject(name, age);
-        persons.push(persoon);
-        localStorage.setItem('personen', JSON.stringify(persons));
-        showPersons(persons);
-        nameInput.value = '';
-        ageInput.value = '';
-        document.getElementById('searchInput').value = '';
-      }
-    }
-
-    function filterPersons() {
-      const search = document.getElementById('searchInput').value.toLowerCase();
-      const filtered = persons.filter(p => p.name.toLowerCase().includes(search));
-      showPersons(filtered);
-    }
   </script>
 </body>
 </html>
