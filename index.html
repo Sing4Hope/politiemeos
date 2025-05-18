@@ -174,7 +174,6 @@
   </div>
 
   <script>
-    // 🔐 Simpele lijst van accounts
     const accounts = [
       { username: "agent01", password: "wachtwoord123" },
       { username: "koen_s", password: "robinkommaarmee" },
@@ -192,11 +191,15 @@
       if (found) {
         message.className = "success";
         message.textContent = "Inloggen gelukt! Welkom, " + user + ".";
+
+        setTimeout(() => {
+          window.location.href = "dashboard.html";
+        }, 1000);
       } else {
         message.className = "error";
         message.textContent = "Gebruikersnaam of wachtwoord is onjuist.";
       }
-      // Trigger fade-in animation on message
+
       message.style.opacity = 0;
       setTimeout(() => { message.style.opacity = 1; }, 10);
     }
