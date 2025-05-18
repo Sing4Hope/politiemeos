@@ -8,74 +8,117 @@
     body {
       margin: 0;
       padding: 0;
-      background-color: #f0f2f5;
-      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #eaf1fb 0%, #f0f2f5 100%);
+      font-family: 'Segoe UI', Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .login-container {
-      max-width: 400px;
-      margin: 80px auto;
-      background-color: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 380px;
+      background: #fff;
+      padding: 36px 32px 28px 32px;
+      border-radius: 14px;
+      box-shadow: 0 8px 32px rgba(0,48,135,0.10), 0 1.5px 4px rgba(0,0,0,0.04);
       text-align: center;
+      position: relative;
     }
 
     .login-container img {
-      width: 100px;
-      margin-bottom: 20px;
+      width: 90px;
+      margin-bottom: 18px;
+      filter: drop-shadow(0 2px 6px rgba(0,48,135,0.08));
     }
 
     .login-container h2 {
-      margin-bottom: 20px;
-      color: #003087; /* Politiekleur */
+      margin-bottom: 18px;
+      color: #003087;
+      font-size: 1.5rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    label {
+      text-align: left;
+      font-size: 0.97rem;
+      color: #003087;
+      margin-bottom: 4px;
+      font-weight: 500;
     }
 
     input[type="text"], input[type="password"] {
-      width: 90%;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 5px;
-      border: 1px solid #ccc;
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 6px;
+      border: 1.5px solid #c7d2e3;
+      background: #f7faff;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+
+    input[type="text"]:focus, input[type="password"]:focus {
+      border-color: #003087;
+      background: #fff;
     }
 
     button {
-      width: 95%;
-      padding: 10px;
-      background-color: #003087;
-      color: white;
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(90deg, #003087 80%, #0050b3 100%);
+      color: #fff;
       border: none;
-      border-radius: 5px;
-      font-size: 16px;
+      border-radius: 6px;
+      font-size: 1.08rem;
+      font-weight: 600;
       cursor: pointer;
-      transition: 0.2s;
+      box-shadow: 0 2px 8px rgba(0,48,135,0.08);
+      transition: background 0.2s, transform 0.1s;
     }
 
-    button:hover {
-      background-color: #002060;
+    button:hover, button:focus {
+      background: linear-gradient(90deg, #002060 80%, #003087 100%);
+      transform: translateY(-1px) scale(1.01);
+      outline: none;
     }
 
     .footer {
       text-align: center;
-      margin-top: 20px;
+      margin-top: 26px;
       font-size: 12px;
-      color: #777;
+      color: #8a99b3;
+      letter-spacing: 0.2px;
+      user-select: none;
     }
   </style>
 </head>
 <body>
-  <div class="login-container">
-    <img src="pol.png" alt="Politie Logo" />
-    <h2>MEOS Systeem Login</h2>
-    <form action="#" method="post">
-      <input type="text" name="gebruikersnaam" placeholder="Gebruikersnaam" required />
-      <input type="password" name="wachtwoord" placeholder="Wachtwoord" required />
-      <button type="submit">Inloggen</button>
-    </form>
-    <div class="footer">
-      © 2025 Politie Nederland – MEOS
-    </div>
-  </div>
+  <main>
+    <section class="login-container" aria-label="Login formulier">
+      <img src="pol.png" alt="Politie Logo" />
+      <h2>MEOS Systeem Login</h2>
+      <form action="#" method="post" autocomplete="on">
+        <label for="gebruikersnaam">Gebruikersnaam</label>
+        <input type="text" id="gebruikersnaam" name="gebruikersnaam" placeholder="Gebruikersnaam" required autocomplete="username" />
+
+        <label for="wachtwoord">Wachtwoord</label>
+        <input type="password" id="wachtwoord" name="wachtwoord" placeholder="Wachtwoord" required autocomplete="current-password" />
+
+        <button type="submit">Inloggen</button>
+      </form>
+      <div class="footer">
+        © 2025 Politie Nederland – MEOS
+      </div>
+    </section>
+  </main>
 </body>
 </html>
