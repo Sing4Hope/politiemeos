@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Personenbeheer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .person {
+      background: white;
+      padding: 10px 15px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+
+    #addForm {
+      display: none;
+      margin-bottom: 20px;
+      background: #fff;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    #addForm input {
+      margin-right: 10px;
+      padding: 5px 10px;
+    }
+
+    #addForm button {
+      padding: 5px 15px;
+      background: #333;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #addForm button:hover {
+      background: #555;
+    }
+
+    #logoutBtn {
+      margin-top: 30px;
+      display: block;
+      text-align: center;
+    }
+
+    @keyframes shake {
+      0% { transform: translateX(0);}
+      20% { transform: translateX(-8px);}
+      40% { transform: translateX(8px);}
+      60% { transform: translateX(-6px);}
+      80% { transform: translateX(6px);}
+      100% { transform: translateX(0);}
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Personenoverzicht</h1>
+
+  <!-- Formulier om personen toe te voegen -->
+  <div id="addForm">
+    <input type="text" id="newName" placeholder="Naam">
+    <input type="number" id="newAge" placeholder="Leeftijd">
+    <button onclick="addPerson()">Toevoegen</button>
+  </div>
+
+  <!-- Overzicht van personen -->
+  <div id="personList"></div>
+
+  <a id="logoutBtn" href="#" onclick="logout()">Uitloggen</a>
+
+  <script>
+    const loggedInUser = localStorage.getItem("loggedInUser") || "agent01";
+    const allowedToAdd = ["koen_s", "thijs"];
+    const addForm = document.getElementById("addForm");
+    const personList = document.getElementById("personList");
+
+    const storedPeople = JSON.parse(localStorage.getItem("personen")) || [];
+
+    function renderPerson(person) {
+      const div = document.createElement("div");
+      div.className = "person";
+      div.textContent = `${person.name} – ${person.age} jaar`;
+      personList.appendChild(div);
+      animatePerson(div);
+    }
+
+    storedPeople.forEach(renderPerson);
+
+    if (allowedToAdd.includes(loggedInUser)) {
+      addForm.style.opacity = 0;
+      addForm.style.transform = "translateY(30px)";
+      addForm.style.display = "block";
+      addForm.style.transition = "opacity 0.5s, transform 0.5s";
+      setTimeout(() => {
+        addForm.style.opacity = 1;
+        addForm.style.transform = "translateY(0)";
+      }, 50);
+    }
+
+    function animatePerson(div) {
+      div.style.opacity = 0;
+      div.style.transform = "translateX(40px) scale(0.95)";
+      div.style.transition = "opacity 0.5s, transform 0.5s";
+      setTimeout(() => {
+        div.style.opacity = 1;
+        div.style.transform = "translateX(0) scale(1)";
+      }, 20);
+    }
+
+    function shakeForm() {
+      addForm.style.animation = "shake 0.4s";
+      addForm.addEventListener("animationend", () => {
+        addForm.style.animation = "";
+      }, { once: true });
+    }
+
+    function addPerson() {
+      const name = document.getElementById("newName").value.trim();
+      const age = document.getElementById("newAge").value.trim();
+
+      if (name && age) {
+        const newPerson = { name, age };
+        storedPeople.push(newPerson);
+        localStorage.setItem("personen", JSON.stringify(storedPeople));
+        renderPerson(newPerson);
+
+        document.getElementById("newName").value = "";
+        document.getElementById("newAge").value = "";
+      } else {
+        shakeForm();
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem("loggedInUser");
+      document.body.style.transition = "opacity 0.5s";
+      document.body.style.opacity = 0;
+      setTimeout(() => {
+        window.location.href = "login.html";
+      }, 500);
+    }
+  </script>
+
+</body>
+</html>
