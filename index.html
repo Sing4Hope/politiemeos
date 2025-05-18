@@ -8,29 +8,48 @@
     body {
       margin: 0;
       padding: 0;
-      background: linear-gradient(135deg, #eaf1fb 0%, #f0f2f5 100%);
-      font-family: 'Segoe UI', Arial, sans-serif;
       min-height: 100vh;
+      background: linear-gradient(135deg, #eaf1fb 0%, #c3dafe 100%);
+      font-family: 'Segoe UI', Arial, sans-serif;
       display: flex;
       align-items: center;
       justify-content: center;
+      animation: fadeInBody 1s;
+    }
+
+    @keyframes fadeInBody {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
     .login-container {
+      max-width: 400px;
       width: 100%;
-      max-width: 380px;
+      margin: 40px auto;
       background: #fff;
       padding: 36px 32px 28px 32px;
-      border-radius: 14px;
+      border-radius: 16px;
       box-shadow: 0 8px 32px rgba(0,48,135,0.10), 0 1.5px 4px rgba(0,0,0,0.04);
       text-align: center;
       position: relative;
+      animation: slideDown 0.8s cubic-bezier(.68,-0.55,.27,1.55);
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(-60px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
 
     .login-container img {
       width: 90px;
       margin-bottom: 18px;
       filter: drop-shadow(0 2px 6px rgba(0,48,135,0.08));
+      animation: fadeInLogo 1.2s;
+    }
+
+    @keyframes fadeInLogo {
+      from { opacity: 0; transform: scale(0.8);}
+      to { opacity: 1; transform: scale(1);}
     }
 
     .login-container h2 {
@@ -39,55 +58,64 @@
       font-size: 1.5rem;
       font-weight: 600;
       letter-spacing: 0.5px;
+      animation: fadeInText 1.2s;
+    }
+
+    @keyframes fadeInText {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
     form {
       display: flex;
       flex-direction: column;
       gap: 14px;
+      animation: fadeInForm 1.3s;
     }
 
-    label {
-      text-align: left;
-      font-size: 0.97rem;
-      color: #003087;
-      margin-bottom: 4px;
-      font-weight: 500;
+    @keyframes fadeInForm {
+      from { opacity: 0; transform: translateY(30px);}
+      to { opacity: 1; transform: translateY(0);}
     }
 
     input[type="text"], input[type="password"] {
       width: 100%;
-      padding: 11px 12px;
-      border-radius: 6px;
+      padding: 12px 14px;
+      border-radius: 7px;
       border: 1.5px solid #c7d2e3;
       background: #f7faff;
       font-size: 1rem;
-      transition: border-color 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s;
       outline: none;
+      box-shadow: 0 1px 2px rgba(0,48,135,0.04);
     }
 
     input[type="text"]:focus, input[type="password"]:focus {
       border-color: #003087;
       background: #fff;
+      box-shadow: 0 0 0 2px #c3dafe;
     }
 
     button {
       width: 100%;
-      padding: 12px;
+      padding: 13px;
       background: linear-gradient(90deg, #003087 80%, #0050b3 100%);
       color: #fff;
       border: none;
-      border-radius: 6px;
+      border-radius: 7px;
       font-size: 1.08rem;
       font-weight: 600;
       cursor: pointer;
       box-shadow: 0 2px 8px rgba(0,48,135,0.08);
-      transition: background 0.2s, transform 0.1s;
+      transition: background 0.2s, transform 0.13s, box-shadow 0.2s;
+      margin-top: 6px;
+      letter-spacing: 0.5px;
     }
 
     button:hover, button:focus {
       background: linear-gradient(90deg, #002060 80%, #003087 100%);
-      transform: translateY(-1px) scale(1.01);
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 6px 18px rgba(0,48,135,0.13);
       outline: none;
     }
 
@@ -98,27 +126,80 @@
       color: #8a99b3;
       letter-spacing: 0.2px;
       user-select: none;
+      opacity: 0.8;
+      animation: fadeInFooter 1.5s;
+    }
+
+    @keyframes fadeInFooter {
+      from { opacity: 0; }
+      to { opacity: 0.8; }
+    }
+
+    .error, .success {
+      font-size: 15px;
+      margin-top: 12px;
+      min-height: 22px;
+      transition: color 0.3s, opacity 0.3s;
+      opacity: 0;
+      animation: fadeInMsg 0.5s forwards;
+    }
+
+    @keyframes fadeInMsg {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .error {
+      color: #d32f2f;
+    }
+
+    .success {
+      color: #388e3c;
     }
   </style>
 </head>
 <body>
-  <main>
-    <section class="login-container" aria-label="Login formulier">
-      <img src="pol.png" alt="Politie Logo" />
-      <h2>MEOS Systeem Login</h2>
-      <form action="#" method="post" autocomplete="on">
-        <label for="gebruikersnaam">Gebruikersnaam</label>
-        <input type="text" id="gebruikersnaam" name="gebruikersnaam" placeholder="Gebruikersnaam" required autocomplete="username" />
+  <div class="login-container">
+    <img src="pol.png" alt="Politie Logo" />
+    <h2>MEOS Systeem Login</h2>
+    <form onsubmit="return loginUser(event)">
+      <input type="text" id="username" placeholder="Gebruikersnaam" required autocomplete="username" />
+      <input type="password" id="password" placeholder="Wachtwoord" required autocomplete="current-password" />
+      <button type="submit">Inloggen</button>
+    </form>
+    <div id="message"></div>
+    <div class="footer">
+      © 2025 Politie Nederland – MEOS
+    </div>
+  </div>
 
-        <label for="wachtwoord">Wachtwoord</label>
-        <input type="password" id="wachtwoord" name="wachtwoord" placeholder="Wachtwoord" required autocomplete="current-password" />
+  <script>
+    // 🔐 Simpele lijst van accounts
+    const accounts = [
+      { username: "agent01", password: "wachtwoord123" },
+      { username: "koen_s", password: "robinkommaarmee" },
+      { username: "thijs", password: "veilig01" }
+    ];
 
-        <button type="submit">Inloggen</button>
-      </form>
-      <div class="footer">
-        © 2025 Politie Nederland – MEOS
-      </div>
-    </section>
-  </main>
+    function loginUser(event) {
+      event.preventDefault();
+      const user = document.getElementById("username").value.trim();
+      const pass = document.getElementById("password").value;
+      const message = document.getElementById("message");
+
+      const found = accounts.find(acc => acc.username === user && acc.password === pass);
+
+      if (found) {
+        message.className = "success";
+        message.textContent = "Inloggen gelukt! Welkom, " + user + ".";
+      } else {
+        message.className = "error";
+        message.textContent = "Gebruikersnaam of wachtwoord is onjuist.";
+      }
+      // Trigger fade-in animation on message
+      message.style.opacity = 0;
+      setTimeout(() => { message.style.opacity = 1; }, 10);
+    }
+  </script>
 </body>
 </html>
