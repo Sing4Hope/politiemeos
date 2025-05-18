@@ -1,167 +1,73 @@
-<!DOCTYPE html>
-<html lang="nl">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MEOS Dashboard</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      display: flex;
-      height: 100vh;
-      background: linear-gradient(120deg, #eaf1fb 0%, #c3dafe 100%);
-      overflow: hidden;
-      animation: fadeInBody 1s;
+<script>
+  // Simuleer wie is ingelogd (je zou dit normaal uit sessie of backend halen)
+  const loggedInUser = localStorage.getItem("loggedInUser") || "agent01";
+
+  const allowedToAdd = ["koen_s", "thijs"];
+  const addForm = document.getElementById("addForm");
+
+  if (allowedToAdd.includes(loggedInUser)) {
+    addForm.style.display = "block";
+    addForm.style.opacity = 0;
+    addForm.style.transform = "translateY(30px)";
+    setTimeout(() => {
+      addForm.style.transition = "opacity 0.5s, transform 0.5s";
+      addForm.style.opacity = 1;
+      addForm.style.transform = "translateY(0)";
+    }, 100);
+  }
+
+  function animatePerson(div) {
+    div.style.opacity = 0;
+    div.style.transform = "translateX(40px) scale(0.95)";
+    setTimeout(() => {
+      div.style.transition = "opacity 0.5s, transform 0.5s";
+      div.style.opacity = 1;
+      div.style.transform = "translateX(0) scale(1)";
+    }, 10);
+  }
+
+  function shakeForm() {
+    addForm.style.animation = "shake 0.4s";
+    addForm.addEventListener("animationend", () => {
+      addForm.style.animation = "";
+    }, { once: true });
+  }
+
+  function addPerson() {
+    const name = document.getElementById("newName").value.trim();
+    const age = document.getElementById("newAge").value.trim();
+
+    if (name && age) {
+      const personList = document.getElementById("personList");
+      const div = document.createElement("div");
+      div.className = "person";
+      div.textContent = `${name} – ${age} jaar`;
+      personList.appendChild(div);
+      animatePerson(div);
+
+      document.getElementById("newName").value = "";
+      document.getElementById("newAge").value = "";
+    } else {
+      shakeForm();
     }
+  }
 
-    @keyframes fadeInBody {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    .sidebar {
-      width: 240px;
-      background: linear-gradient(160deg, #003087 80%, #0050b3 100%);
-      color: white;
-      padding: 28px 20px 20px 20px;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 2px 0 16px rgba(0,48,135,0.08);
-      animation: slideInSidebar 0.8s cubic-bezier(.68,-0.55,.27,1.55);
-    }
-
-    @keyframes slideInSidebar {
-      from { transform: translateX(-80px); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
-
-    .sidebar h2 {
-      font-size: 24px;
-      margin-bottom: 32px;
-      border-bottom: 1px solid rgba(255,255,255,0.18);
-      padding-bottom: 12px;
-      letter-spacing: 1px;
-      animation: fadeInText 1.2s;
-    }
-
-    .sidebar a {
-      color: white;
-      text-decoration: none;
-      margin: 10px 0;
-      font-size: 17px;
-      padding: 12px 14px;
-      border-radius: 6px;
-      transition: background 0.22s, transform 0.18s;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      opacity: 0;
-      animation: fadeInMenu 0.7s forwards;
-    }
-
-    /* Animate each menu item with a delay */
-    .sidebar a:nth-child(2) { animation-delay: 0.2s; }
-    .sidebar a:nth-child(3) { animation-delay: 0.32s; }
-    .sidebar a:nth-child(4) { animation-delay: 0.44s; }
-    .sidebar a:nth-child(5) { animation-delay: 0.56s; }
-    .sidebar a:nth-child(6) { animation-delay: 0.68s; }
-    .sidebar a:nth-child(7) { animation-delay: 0.8s; }
-
-    @keyframes fadeInMenu {
-      from { opacity: 0; transform: translateX(-30px);}
-      to { opacity: 1; transform: translateX(0);}
-    }
-
-    .sidebar a:hover, .sidebar a:focus {
-      background-color: #002060;
-      transform: scale(1.04) translateX(4px);
-      outline: none;
-    }
-
-    .main {
-      flex-grow: 1;
-      padding: 60px 40px 40px 40px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: flex-start;
-      animation: fadeInMain 1.2s;
-    }
-
-    @keyframes fadeInMain {
-      from { opacity: 0; transform: translateY(40px);}
-      to { opacity: 1; transform: translateY(0);}
-    }
-
-    .main h1 {
-      color: #003087;
-      font-size: 2.2rem;
-      margin-bottom: 18px;
-      letter-spacing: 1px;
-      animation: fadeInText 1.3s;
-    }
-
-    .main p {
-      margin-top: 10px;
-      color: #333;
-      font-size: 1.15rem;
-      animation: fadeInText 1.5s;
-    }
-
-    @keyframes fadeInText {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    @media (max-width: 700px) {
-      body {
-        flex-direction: column;
-      }
-      .sidebar {
-        width: 100%;
-        flex-direction: row;
-        align-items: flex-start;
-        padding: 16px 8px;
-        box-shadow: none;
-        border-bottom-left-radius: 16px;
-        border-bottom-right-radius: 16px;
-      }
-      .sidebar h2 {
-        display: none;
-      }
-      .sidebar a {
-        font-size: 15px;
-        padding: 10px 8px;
-        margin: 0 4px;
-      }
-      .main {
-        padding: 30px 10px;
-        align-items: center;
-      }
-      .main h1 {
-        font-size: 1.3rem;
-      }
-      .main p {
-        font-size: 1rem;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="sidebar">
-    <h2>MEOS Menu</h2>
-    <a href="#">👤 Personen opzoeken</a>
-    <a href="#">💸 Boetes</a>
-    <a href="#">🚔 Kentekencheck</a>
-    <a href="#">📄 Rapporten</a>
-    <a href="#">⚠️ Meldingen</a>
-    <a href="#">🔒 Uitloggen</a>
-  </div>
-
-  <div class="main">
-    <h1>Welkom bij het MEOS Dashboard</h1>
-    <p>Kies een optie in het menu aan de linkerkant om te beginnen.</p>
-  </div>
-</body>
-</html>
+  function logout() {
+    localStorage.removeItem("loggedInUser");
+    document.body.style.transition = "opacity 0.5s";
+    document.body.style.opacity = 0;
+    setTimeout(() => {
+      window.location.href = "login.html";
+    }, 500);
+  }
+</script>
+<style>
+  @keyframes shake {
+    0% { transform: translateX(0);}
+    20% { transform: translateX(-8px);}
+    40% { transform: translateX(8px);}
+    60% { transform: translateX(-6px);}
+    80% { transform: translateX(6px);}
+    100% { transform: translateX(0);}
+  }
+</style>
