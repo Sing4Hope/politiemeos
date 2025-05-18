@@ -2,62 +2,97 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Personenbeheer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Personen beheren</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
       padding: 20px;
-      color: #333;
+      background: #f7f9fc;
+      color: #222;
+      animation: fadeInBody 0.8s;
     }
-
+    @keyframes fadeInBody {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
     h1 {
-      text-align: center;
+      color: #003087;
+      animation: fadeInDown 0.7s;
     }
-
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-30px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    form {
+      margin-bottom: 20px;
+      animation: fadeInUp 0.7s;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    input[type="text"], input[type="number"] {
+      padding: 8px;
+      margin-right: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input[type="text"]:focus, input[type="number"]:focus {
+      border-color: #003087;
+      box-shadow: 0 0 0 2px #c3dafe;
+      outline: none;
+    }
+    button {
+      padding: 8px 14px;
+      background-color: #003087;
+      border: none;
+      color: white;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    button:hover {
+      background-color: #0050b3;
+      transform: scale(1.05);
+    }
+    #searchInput {
+      margin-bottom: 15px;
+      padding: 8px;
+      width: 100%;
+      max-width: 300px;
+      font-size: 1rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      animation: fadeInUp 0.8s;
+    }
+    #searchInput:focus {
+      border-color: #003087;
+      box-shadow: 0 0 0 2px #c3dafe;
+      outline: none;
+    }
     .person {
       background: white;
-      padding: 10px 15px;
       margin-bottom: 10px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      transition: all 0.3s ease;
-    }
-
-    #addForm {
-      display: none;
-      margin-bottom: 20px;
-      background: #fff;
-      padding: 15px;
-      border-radius: 10px;
+      padding: 10px 15px;
+      border-radius: 6px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      font-size: 1.1rem;
+      opacity: 0;
+      transform: translateX(40px) scale(0.97);
+      animation: personIn 0.5s forwards;
     }
-
-    #addForm input {
-      margin-right: 10px;
-      padding: 5px 10px;
+    @keyframes personIn {
+      to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+      }
     }
-
-    #addForm button {
-      padding: 5px 15px;
-      background: #333;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    #addForm button:hover {
-      background: #555;
-    }
-
-    #logoutBtn {
-      margin-top: 30px;
-      display: block;
-      text-align: center;
-    }
-
     @keyframes shake {
       0% { transform: translateX(0);}
       20% { transform: translateX(-8px);}
@@ -69,93 +104,76 @@
   </style>
 </head>
 <body>
+  <h1>Personen beheren</h1>
 
-  <h1>Personenoverzicht</h1>
+  <form id="addForm" onsubmit="event.preventDefault(); addPerson();">
+    <input type="text" id="newName" placeholder="Naam" required />
+    <input type="number" id="newAge" placeholder="Leeftijd" min="0" max="120" required />
+    <button type="submit">Toevoegen</button>
+  </form>
 
-  <!-- Formulier om personen toe te voegen -->
-  <div id="addForm">
-    <input type="text" id="newName" placeholder="Naam">
-    <input type="number" id="newAge" placeholder="Leeftijd">
-    <button onclick="addPerson()">Toevoegen</button>
-  </div>
+  <input type="text" id="searchInput" placeholder="Zoek persoon..." oninput="filterPersons()" />
 
-  <!-- Overzicht van personen -->
   <div id="personList"></div>
 
-  <a id="logoutBtn" href="#" onclick="logout()">Uitloggen</a>
-
   <script>
-    const loggedInUser = localStorage.getItem("loggedInUser") || "agent01";
-    const allowedToAdd = ["koen_s", "thijs"];
-    const addForm = document.getElementById("addForm");
-    const personList = document.getElementById("personList");
+    // Haal personen uit localStorage of begin met lege lijst
+    let persons = JSON.parse(localStorage.getItem('personen')) || [];
 
-    const storedPeople = JSON.parse(localStorage.getItem("personen")) || [];
-
-    function renderPerson(person) {
-      const div = document.createElement("div");
-      div.className = "person";
-      div.textContent = `${person.name} – ${person.age} jaar`;
-      personList.appendChild(div);
-      animatePerson(div);
+    // Functie om lijst te tonen met animatie
+    function showPersons(list) {
+      const personList = document.getElementById('personList');
+      personList.innerHTML = '';
+      if(list.length === 0) {
+        personList.innerHTML = '<p>Geen personen gevonden.</p>';
+        return;
+      }
+      list.forEach((p, i) => {
+        const div = document.createElement('div');
+        div.className = 'person';
+        div.textContent = `${p.name} – ${p.age} jaar`;
+        div.style.animationDelay = (i * 60) + "ms";
+        personList.appendChild(div);
+      });
     }
 
-    storedPeople.forEach(renderPerson);
+    // Personen tonen bij laden
+    showPersons(persons);
 
-    if (allowedToAdd.includes(loggedInUser)) {
-      addForm.style.opacity = 0;
-      addForm.style.transform = "translateY(30px)";
-      addForm.style.display = "block";
-      addForm.style.transition = "opacity 0.5s, transform 0.5s";
-      setTimeout(() => {
-        addForm.style.opacity = 1;
-        addForm.style.transform = "translateY(0)";
-      }, 50);
-    }
-
-    function animatePerson(div) {
-      div.style.opacity = 0;
-      div.style.transform = "translateX(40px) scale(0.95)";
-      div.style.transition = "opacity 0.5s, transform 0.5s";
-      setTimeout(() => {
-        div.style.opacity = 1;
-        div.style.transform = "translateX(0) scale(1)";
-      }, 20);
-    }
-
+    // Shake animatie bij foutieve invoer
     function shakeForm() {
-      addForm.style.animation = "shake 0.4s";
-      addForm.addEventListener("animationend", () => {
-        addForm.style.animation = "";
+      const form = document.getElementById('addForm');
+      form.style.animation = "shake 0.4s";
+      form.addEventListener("animationend", () => {
+        form.style.animation = "";
       }, { once: true });
     }
 
+    // Nieuwe persoon toevoegen met animatie
     function addPerson() {
-      const name = document.getElementById("newName").value.trim();
-      const age = document.getElementById("newAge").value.trim();
+      const nameInput = document.getElementById('newName');
+      const ageInput = document.getElementById('newAge');
+      const name = nameInput.value.trim();
+      const age = parseInt(ageInput.value);
 
-      if (name && age) {
-        const newPerson = { name, age };
-        storedPeople.push(newPerson);
-        localStorage.setItem("personen", JSON.stringify(storedPeople));
-        renderPerson(newPerson);
-
-        document.getElementById("newName").value = "";
-        document.getElementById("newAge").value = "";
+      if(name && age >= 0) {
+        persons.push({ name, age });
+        localStorage.setItem('personen', JSON.stringify(persons));
+        showPersons(persons);
+        nameInput.value = '';
+        ageInput.value = '';
+        document.getElementById('searchInput').value = '';
       } else {
         shakeForm();
       }
     }
 
-    function logout() {
-      localStorage.removeItem("loggedInUser");
-      document.body.style.transition = "opacity 0.5s";
-      document.body.style.opacity = 0;
-      setTimeout(() => {
-        window.location.href = "login.html";
-      }, 500);
+    // Filter functie voor zoeken met animatie
+    function filterPersons() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = persons.filter(p => p.name.toLowerCase().includes(search));
+      showPersons(filtered);
     }
   </script>
-
 </body>
 </html>
