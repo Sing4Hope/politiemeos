@@ -268,6 +268,7 @@
     showPersons(persons);
 
     function addPerson() {
+      const form = document.getElementById('addForm');
       const nameInput = document.getElementById('newName');
       const ageInput = document.getElementById('newAge');
       const name = nameInput.value.trim();
@@ -278,8 +279,7 @@
         persons.push(persoon);
         localStorage.setItem('personen', JSON.stringify(persons));
         showPersons(persons);
-        nameInput.value = '';
-        ageInput.value = '';
+        form.reset(); // Fix: reset all form fields properly
         document.getElementById('searchInput').value = '';
       }
     }
